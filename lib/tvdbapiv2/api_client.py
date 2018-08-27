@@ -33,6 +33,7 @@ from requests.compat import urljoin
 
 # python 2 and python 3 compatibility library
 from six import binary_type, iteritems, text_type
+import six
 
 from . import models  # noqa: F401 -- Used through eval.
 from .auth.tvdb import TVDBAuth
@@ -207,10 +208,14 @@ class ApiClient(object):
             return self.__deserialize_file(response)
 
         # fetch data from response object
-        try:
-            data = json.loads(response.content)
-        except ValueError:
+        if six.PY3:
+            data = response.content.decode("utf-8")
+        else:
             data = response.content
+        try:
+            data = json.loads(data)
+        except ValueError:
+            pass
 
         return self.__deserialize(data, response_type)
 
