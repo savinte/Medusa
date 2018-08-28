@@ -1,15 +1,19 @@
+# coding=utf-8
 """Dredd hook."""
 from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
-import ConfigParser
+import io
 import json
-import urlparse
 from collections import Mapping
-from urllib import urlencode
 
 import dredd_hooks as hooks
 
-from six import string_types
+import six
+from six import binary_type, string_types
+from six.moves.configparser import RawConfigParser
+from six.moves.urllib.parse import parse_qs, urlencode, urlparse
 
 import yaml
 
@@ -27,7 +31,7 @@ stash = {
 def load_api_description(transactions):
     """Load api description."""
     global api_description
-    with open(transactions[0]['origin']['filename'], 'r') as stream:
+    with io.open(transactions[0]['origin']['filename'], 'rb') as stream:
         api_description = yaml.safe_load(stream)
 
 
@@ -64,8 +68,8 @@ def configure_transaction(transaction):
 
     # Change request based on x-request configuration
     url = transaction['fullPath']
-    parsed_url = urlparse.urlparse(url)
-    parsed_params = urlparse.parse_qs(parsed_url.query)
+    parsed_url = urlparse(url)
+    parsed_params = parse_qs(parsed_url.query)
     parsed_path = parsed_url.path
 
     request = response.get('x-request', {})
@@ -89,7 +93,7 @@ def configure_transaction(transaction):
         new_url = path
         for name, value in params.items():
             value = evaluate(value)
-            new_url = new_url.replace('{' + name + '}', str(value))
+            new_url = new_url.replace('{' + name + '}', binary_type(value))
 
         replace_url(transaction, new_url)
 
@@ -158,13 +162,13 @@ def start():
 
     os.makedirs(data_dir)
     os.chdir(data_dir)
-    config = ConfigParser.RawConfigParser()
+    config = RawConfigParser()
     config.read('config.ini')
     config.add_section('General')
     config.set('General', 'web_username', stash['web-username'])
     config.set('General', 'web_password', stash['web-password'])
     config.set('General', 'api_key', stash['api-key'])
-    with open('config.ini', 'wb') as configfile:
+    with io.open('config.ini', 'w' if six.PY3 else 'wb') as configfile:
         config.write(configfile)
 
     sys.path.insert(1, app_dir)
