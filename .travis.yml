@@ -12,7 +12,7 @@ script: false
 jobs:
   fast_finish: true
   allow_failures:
-    - python: '3.7'
+    - python: '3.6'
   include:
     # test stage + frontend tests start here
     - stage: test
@@ -43,9 +43,9 @@ jobs:
         - pip install --upgrade tox
       script:
         - tox -v --recreate
-    # backend tests (py3.7) start here
-    - name: 'Backend tests (py3.7)'
-      python: '3.7'
+    # backend tests (py3.6) start here
+    - name: 'Backend tests (py3.6)'
+      python: '3.6'
       env:
         - TOXENV=py36
       install:
@@ -68,10 +68,10 @@ jobs:
         - yarn test-api
       after_failure:
         - cat ./dredd/data/Logs/application.log
-    # dredd tests (py3.7) start here
+    # dredd tests (py3.6) start here
     # @FIXME: Disabled because they take too long. Enable when Medusa can *actually* start on Python 3.
-    # - name: 'Dredd tests (py3.7)'
-    #   python: '3.7'
+    # - name: 'Dredd tests (py3.6)'
+    #   python: '3.6'
     #   install:
     #     - pip install --upgrade pip
     #     - pip install dredd_hooks

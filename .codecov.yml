@@ -49,7 +49,7 @@ coverage:
       backend:
         flags:
           - backend_py27
-          - backend_py37
+          - backend_py36
         target: 0%
         threshold: 5.0%
         if_no_uploads: error
