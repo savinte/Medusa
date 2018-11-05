@@ -526,6 +526,7 @@ class DataGenerator(object):
         section_data['anySets']['anyhdtv'] = common.Quality.ANYHDTV
         section_data['anySets']['anywebdl'] = common.Quality.ANYWEBDL
         section_data['anySets']['anybluray'] = common.Quality.ANYBLURAY
+        section_data['anySets']['anyhevc'] = common.Quality.ANYHEVC
 
         section_data['presets'] = NonEmptyDict()
         section_data['presets']['any'] = common.ANY
@@ -536,8 +537,8 @@ class DataGenerator(object):
         section_data['presets']['uhd'] = common.UHD
         section_data['presets']['uhd4k'] = common.UHD_4K
         section_data['presets']['uhd8k'] = common.UHD_8K
-        section_data['presets']['hevc720p'] = common.HEVC720P
-        section_data['presets']['hevc1080p'] = common.HEVC1080P
+        section_data['presets']['hevc720p'] = common.HEVC720p
+        section_data['presets']['hevc1080p'] = common.HEVC1080p
 
         section_data['strings'] = NonEmptyDict()
         section_data['strings']['values'] = common.Quality.qualityStrings

@@ -157,9 +157,11 @@ class Quality(object):
     FULLHEVC = 1 << 17 # 131072
     HEVCWEBDL = 1 << 18 # 262144
     FULLHEVCWEBDL = 1 << 19 # 524288
-    ANYHDTV = HDTV | FULLHDTV | HEVC | FULLHEVC # 40
-    ANYWEBDL = HDWEBDL | FULLHDWEBDL | HEVCWEBDL | FULLHEVCWEBDL # 192
+
+    ANYHDTV = HDTV | FULLHDTV # 40
+    ANYWEBDL = HDWEBDL | FULLHDWEBDL # 192
     ANYBLURAY = HDBLURAY | FULLHDBLURAY  # 768
+    ANYHEVC = HEVC | FULLHEVC | HEVCWEBDL | FULLHEVCWEBDL
 
     qualityStrings = {
         NA: 'N/A',
@@ -212,7 +214,8 @@ class Quality(object):
     combinedQualityStrings = {
         ANYHDTV: 'HDTV',
         ANYWEBDL: 'WEB-DL',
-        ANYBLURAY: 'BluRay'
+        ANYBLURAY: 'BluRay',
+        ANYHEVC: 'HEVC'
     }
 
     cssClassStrings = {
@@ -239,7 +242,8 @@ class Quality(object):
         UHD_8K_BLURAY: 'UHD-8K',
         ANYHDTV: 'any-hd',
         ANYWEBDL: 'any-hd',
-        ANYBLURAY: 'any-hd'
+        ANYBLURAY: 'any-hd',
+        ANYHEVC: 'any-hevc'
     }
 
     @staticmethod
@@ -676,7 +680,8 @@ class Quality(object):
     to_guessit_source_map = {
         ANYHDTV | UHD_4K_TV | UHD_8K_TV: 'HDTV',
         ANYWEBDL | UHD_4K_WEBDL | UHD_8K_WEBDL: 'Web',
-        ANYBLURAY | UHD_4K_BLURAY | UHD_8K_BLURAY: 'Blu-ray'
+        ANYBLURAY | UHD_4K_BLURAY | UHD_8K_BLURAY: 'Blu-ray',
+        ANYHEVC: 'HEVC'
     }
 
     # Consolidate the sources of each guessit-supported screen size
@@ -771,22 +776,22 @@ class Quality(object):
 
 HD720p = Quality.combine_qualities([Quality.HDTV, Quality.HDWEBDL, Quality.HDBLURAY], [])
 HD1080p = Quality.combine_qualities([Quality.FULLHDTV, Quality.FULLHDWEBDL, Quality.FULLHDBLURAY], [])
-HEVC720P = Quality.combine_qualities([Quality.HEVC, Quality.HEVCWEBDL], [])
-HEVC1080P = Quality.combine_qualities([Quality.FULLHEVC, Quality.FULLHEVCWEBDL], [])
+HEVC720p = Quality.combine_qualities([Quality.HEVC, Quality.HEVCWEBDL], [])
+HEVC1080p = Quality.combine_qualities([Quality.FULLHEVC, Quality.FULLHEVCWEBDL], [])
 UHD_4K = Quality.combine_qualities([Quality.UHD_4K_TV, Quality.UHD_4K_WEBDL, Quality.UHD_4K_BLURAY], [])
 UHD_8K = Quality.combine_qualities([Quality.UHD_8K_TV, Quality.UHD_8K_WEBDL, Quality.UHD_8K_BLURAY], [])
 
 SD = Quality.combine_qualities([Quality.SDTV, Quality.SDDVD], [])
 HD = Quality.combine_qualities([HD720p, HD1080p], [])
-HEVC = Quality.combine_qualities([HEVC720P, HEVC1080P], [])
+HEVC = Quality.combine_qualities([HEVC720p, HEVC1080p], [])
 UHD = Quality.combine_qualities([UHD_4K, UHD_8K], [])
-ANY = Quality.combine_qualities([SD, HD, UHD, HEVC], [])
+ANY = Quality.combine_qualities([SD, HD, HEVC, UHD], [])
 
 qualityPresets = (
     ANY,
     SD,
     HD, HD720p, HD1080p,
-    HEVC720P, HEVC1080P,
+    HEVC, HEVC720p, HEVC1080p,
     UHD, UHD_4K, UHD_8K,
 )
 
@@ -795,8 +800,9 @@ qualityPresetStrings = {
     HD: 'HD',
     HD720p: 'HD720p',
     HD1080p: 'HD1080p',
-    HEVC720P: 'HEVC720p',
-    HEVC1080P: 'HEVC1080p',
+    HEVC: 'HEVC',
+    HEVC720p: 'HEVC720p',
+    HEVC1080p: 'HEVC1080p',
     UHD: 'UHD',
     UHD_4K: 'UHD-4K',
     UHD_8K: 'UHD-8K',
