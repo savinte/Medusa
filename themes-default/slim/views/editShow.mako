@@ -162,7 +162,7 @@ window.app = new Vue({
             const allowed = this.series.config.qualities.allowed.reduce(reducer, 0);
             const preferred = this.series.config.qualities.preferred.reduce(reducer, 0);
 
-            return (allowed | preferred << 16) >>> 0;  // Unsigned int
+            return (allowed | preferred << 32) >>> 0;  // Unsigned int
         },
         saveButton() {
             return this.saving === false ? 'Save Changes' : 'Saving...';
