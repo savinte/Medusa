@@ -213,7 +213,7 @@ const QualityChooserComponent = {
                 .filter(quality => ( (preset & quality) >>> 0 ) > 0);
             this.preferredQualities = Object.keys(this.qualityStrings)
                 .map(quality => parseInt(quality, 10))
-                .filter(quality => ( (preset & (quality << 16)) >>> 0 ) > 0);
+                .filter(quality => ( (preset & (quality << 32)) >>> 0 ) > 0);
         }
     },
     watch: {
