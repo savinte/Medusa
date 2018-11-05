@@ -1071,7 +1071,8 @@ class PostProcessor(object):
 
         if not priority_download:
             if existing_file_status == PostProcessor.EXISTS_SAME:
-                self.log(u'File exists and the new file has the same size, aborting post-processing')
+                self._log("File exists and new file is same size, removing duplicate in processing folder")
+                self._delete(self.file_path, True)
                 return True
 
             if existing_file_status != PostProcessor.DOESNT_EXIST:

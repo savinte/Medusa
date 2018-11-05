@@ -57,7 +57,11 @@ def split_composite_status(status):
         'UHD_8K_TV': 4096,
         'UHD_8K_WEBDL': 8192,
         'UHD_8K_BLURAY': 16384,
-        'UNKNOWN': 32768
+        'HEVC': 65536,
+        'FULLHEVC': 131072,
+        'HEVCWEBDL': 262144,
+        'FULLHEVCWEBDL': 524288,
+        'UNKNOWN': 1048576
     }
 
     status = int(status)

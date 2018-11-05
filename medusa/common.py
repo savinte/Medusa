@@ -38,6 +38,7 @@ from six import PY3, viewitems
 if PY3:
     long = int
 
+
 INSTANCE_ID = str(uuid.uuid1())
 VERSION = '0.2.11'
 USER_AGENT = 'Medusa/{version} ({system}; {release}; {instance})'.format(
@@ -152,8 +153,12 @@ class Quality(object):
     UHD_8K_TV = 1 << 13  # 8192 -- 4320p aka 8K UHD aka UHD-2
     UHD_8K_WEBDL = 1 << 14  # 16384
     UHD_8K_BLURAY = 1 << 15  # 32768
-    ANYHDTV = HDTV | FULLHDTV  # 40
-    ANYWEBDL = HDWEBDL | FULLHDWEBDL  # 192
+    HEVC = 1 << 16 # 65536
+    FULLHEVC = 1 << 17 # 131072
+    HEVCWEBDL = 1 << 18 # 262144
+    FULLHEVCWEBDL = 1 << 19 # 524288
+    ANYHDTV = HDTV | FULLHDTV | HEVC | FULLHEVC # 40
+    ANYWEBDL = HDWEBDL | FULLHDWEBDL | HEVCWEBDL | FULLHEVCWEBDL # 192
     ANYBLURAY = HDBLURAY | FULLHDBLURAY  # 768
 
     qualityStrings = {
@@ -174,6 +179,10 @@ class Quality(object):
         UHD_8K_WEBDL: '8K UHD WEB-DL',
         UHD_4K_BLURAY: '4K UHD BluRay',
         UHD_8K_BLURAY: '8K UHD BluRay',
+        HEVC: '720p HEVC',
+        FULLHEVC: '1080p HEVC',
+        HEVCWEBDL: '720p HEVC WEB-DL',
+        FULLHEVCWEBDL: '1080p HEVC WEB-DL'
     }
 
     sceneQualityStrings = {
@@ -194,6 +203,10 @@ class Quality(object):
         UHD_8K_WEBDL: '4320p',
         UHD_4K_BLURAY: '2160p BluRay',
         UHD_8K_BLURAY: '4320p BluRay',
+        HEVC: '720p HEVC',
+        FULLHEVC: '1080p HEVC',
+        HEVCWEBDL: '720p HEVC WEB-DL',
+        FULLHEVCWEBDL: '1080p HEVC WEB-DL'
     }
 
     combinedQualityStrings = {
@@ -214,6 +227,10 @@ class Quality(object):
         FULLHDWEBDL: 'HD1080p',
         HDBLURAY: 'HD720p',
         FULLHDBLURAY: 'HD1080p',
+        HEVC: 'HEVC720p',
+        FULLHEVC: 'HEVC1080p',
+        HEVCWEBDL: 'HEVC720p',
+        FULLHEVCWEBDL: 'HEVC1080p',
         UHD_4K_TV: 'UHD-4K',
         UHD_8K_TV: 'UHD-8K',
         UHD_4K_WEBDL: 'UHD-4K',
@@ -233,7 +250,7 @@ class Quality(object):
             any_quality = reduce(operator.or_, allowed_qualities)
         if preferred_qualities:
             best_quality = reduce(operator.or_, preferred_qualities)
-        return any_quality | (best_quality << 16)
+        return any_quality | (best_quality << 32)
 
     @staticmethod
     def split_quality(quality):
@@ -242,7 +259,7 @@ class Quality(object):
         for cur_qual in Quality.qualityStrings:
             if cur_qual & quality:
                 allowed_qualities.append(cur_qual)
-            if cur_qual << 16 & quality:
+            if cur_qual << 32 & quality:
                 preferred_qualities.append(cur_qual)
 
         return sorted(allowed_qualities), sorted(preferred_qualities)
@@ -259,8 +276,8 @@ class Quality(object):
         for cur_qual in Quality.qualityStrings:
             if cur_qual & quality:
                 quality -= cur_qual
-            if cur_qual << 16 & quality:
-                quality -= cur_qual << 16
+            if cur_qual << 32 & quality:
+                quality -= cur_qual << 32
         return quality == 0
 
     @staticmethod
@@ -273,6 +290,7 @@ class Quality(object):
         :param extend: boolean to extend methods to try
         :return: Quality
         """
+
         # Try getting the quality from the filename
         quality = Quality.quality_from_name(name, anime)
         if quality != Quality.UNKNOWN:
@@ -346,10 +364,15 @@ class Quality(object):
                     result = Quality.FULLHDBLURAY if is_1080 else Quality.HDBLURAY
                 # WEB-DL
                 elif ep.web or any([ep.amazon, ep.itunes, ep.netflix]):
-                    result = Quality.FULLHDWEBDL if is_1080 else Quality.HDWEBDL
+                    if ep.avc and (ep.hevc == 'hevc' or ep.hevc == 'x265'):
+                        result = Quality.FULLHEVCWEBDL if is_1080 else Quality.HEVCWEBDL
+                    else:
+                        result = Quality.FULLHDWEBDL if is_1080 else Quality.HDWEBDL
                 # HDTV and MPEG2 encoded
                 elif ep.tv == 'hd' and ep.mpeg:
                     result = Quality.RAWHDTV
+                elif ep.avc and (ep.hevc == 'hevc' or ep.hevc == 'x265'):
+                    result = Quality.FULLHEVC if is_1080 else Quality.HEVC
                 # HDTV
                 else:
                     result = Quality.FULLHDTV if is_1080 else Quality.HDTV
@@ -427,9 +450,9 @@ class Quality(object):
         if 1620 < height <= 3240:
             ret = ((Quality.UHD_4K_TV, Quality.UHD_4K_BLURAY)[bluray], Quality.UHD_4K_WEBDL)[webdl]
         elif 800 < height <= 1620:
-            ret = ((Quality.FULLHDTV, Quality.FULLHDBLURAY)[bluray], Quality.FULLHDWEBDL)[webdl]
+            ret = ((Quality.FULLHDTV, Quality.FULLHDBLURAY)[bluray], Quality.FULLHDWEBDL, Quality.FULLHEVC, Quality.FULLHEVCWEBDL)[webdl]
         elif 680 < height <= 800:
-            ret = ((Quality.HDTV, Quality.HDBLURAY)[bluray], Quality.HDWEBDL)[webdl]
+            ret = ((Quality.HDTV, Quality.HDBLURAY)[bluray], Quality.HDWEBDL, Quality.HEVC, Quality.HEVCWEBDL)[webdl]
         elif height <= 680:
             ret = (Quality.SDTV, Quality.SDDVD)[re.search(r'dvd|b[rd]rip|blue?-?ray', base_filename, re.I) is not None]
 
@@ -492,7 +515,7 @@ class Quality(object):
 
         # If any WEB type
         if quality in (Quality.HDWEBDL, Quality.FULLHDWEBDL, Quality.UHD_4K_WEBDL,
-                       Quality.UHD_8K_WEBDL):
+                       Quality.UHD_8K_WEBDL, Quality.FULLHEVCWEBDL,Quality.HEVCWEBDL):
             rel_type = ' WEB'
             if re.search(r'web(-| |\.)?dl', name):
                 rel_type = ' WEB-DL'
@@ -559,7 +582,7 @@ class Quality(object):
         :param search_type: The search type, that started this method
         :return: True if the old quality should be replaced with new quality
         """
-        if not ep_status or ep_status not in (DOWNLOADED, SNATCHED, SNATCHED_PROPER):
+        if ep_status and ep_status not in (DOWNLOADED, SNATCHED, SNATCHED_PROPER):
             if not force:
                 return False, 'Episode status is not Downloaded, Snatched or Snatched Proper. Ignoring new quality'
 
@@ -628,12 +651,14 @@ class Quality(object):
             'HDTV': HDTV,
             'Web': HDWEBDL,
             'Blu-ray': HDBLURAY,
+			'HEVC': HEVC
         },
         '1080i': RAWHDTV,
         '1080p': {
             'HDTV': FULLHDTV,
             'Web': FULLHDWEBDL,
-            'Blu-ray': FULLHDBLURAY
+            'Blu-ray': FULLHDBLURAY,
+			'FULLHEVC': FULLHEVC
         },
         '2160p': {
             'HDTV': UHD_4K_TV,
@@ -656,9 +681,9 @@ class Quality(object):
 
     # Consolidate the sources of each guessit-supported screen size
     to_guessit_screen_size_map = {
-        HDTV | HDWEBDL | HDBLURAY: '720p',
+        HDTV | HDWEBDL | HDBLURAY | HEVC: '720p',
         RAWHDTV: '1080i',
-        FULLHDTV | FULLHDWEBDL | FULLHDBLURAY: '1080p',
+        FULLHDTV | FULLHDWEBDL | FULLHDBLURAY | FULLHEVC: '1080p',
         UHD_4K_TV | UHD_4K_WEBDL | UHD_4K_BLURAY: '2160p',
         UHD_8K_TV | UHD_8K_WEBDL | UHD_8K_BLURAY: '4320p',
     }
@@ -746,18 +771,22 @@ class Quality(object):
 
 HD720p = Quality.combine_qualities([Quality.HDTV, Quality.HDWEBDL, Quality.HDBLURAY], [])
 HD1080p = Quality.combine_qualities([Quality.FULLHDTV, Quality.FULLHDWEBDL, Quality.FULLHDBLURAY], [])
+HEVC720P = Quality.combine_qualities([Quality.HEVC, Quality.HEVCWEBDL], [])
+HEVC1080P = Quality.combine_qualities([Quality.FULLHEVC, Quality.FULLHEVCWEBDL], [])
 UHD_4K = Quality.combine_qualities([Quality.UHD_4K_TV, Quality.UHD_4K_WEBDL, Quality.UHD_4K_BLURAY], [])
 UHD_8K = Quality.combine_qualities([Quality.UHD_8K_TV, Quality.UHD_8K_WEBDL, Quality.UHD_8K_BLURAY], [])
 
 SD = Quality.combine_qualities([Quality.SDTV, Quality.SDDVD], [])
 HD = Quality.combine_qualities([HD720p, HD1080p], [])
+HEVC = Quality.combine_qualities([HEVC720P, HEVC1080P], [])
 UHD = Quality.combine_qualities([UHD_4K, UHD_8K], [])
-ANY = Quality.combine_qualities([SD, HD, UHD], [])
+ANY = Quality.combine_qualities([SD, HD, UHD, HEVC], [])
 
 qualityPresets = (
     ANY,
     SD,
     HD, HD720p, HD1080p,
+    HEVC720P, HEVC1080P,
     UHD, UHD_4K, UHD_8K,
 )
 
@@ -766,6 +795,8 @@ qualityPresetStrings = {
     HD: 'HD',
     HD720p: 'HD720p',
     HD1080p: 'HD1080p',
+    HEVC720P: 'HEVC720p',
+    HEVC1080P: 'HEVC1080p',
     UHD: 'UHD',
     UHD_4K: 'UHD-4K',
     UHD_8K: 'UHD-8K',

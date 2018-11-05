@@ -95,12 +95,18 @@ export default {
         setUHD8K() {
             return this.makeQualitySet('uhd8ktv', 'uhd8kwebdl', 'uhd8kbluray');
         },
+        sethevc() {
+            return this.makeQualitySet('hevc', 'hevcwebdl');
+        },
+        setfullhevc() {
+            return this.makeQualitySet('fullhevc', 'fullhevcwebdl');
+        },
         pill() {
             let { quality } = this;
 
             // If allowed and preferred qualities are the same, show pill as allowed quality
-            const sumAllowed = (quality & 0xFFFF) >>> 0; // Unsigned int
-            const sumPreferred = (quality >> 16) >>> 0; // Unsigned int
+            const sumAllowed = (quality & 0xFFFFFFFF) >>> 0; // Unsigned big int
+            const sumPreferred = (quality >> 32) >>> 0; // Unsigned int
             if (sumAllowed === sumPreferred) {
                 quality = sumAllowed;
             }
@@ -121,7 +127,9 @@ export default {
                 set720p,
                 set1080p,
                 setUHD4K,
-                setUHD8K
+                setUHD8K,
+                sethevc,
+                setfullhevc
             } = this;
 
             // This are the fallback values, if none of the checks below match
@@ -170,6 +178,14 @@ export default {
             } else if (isSubsetOf(qualities.allowed, setUHD8K) && isSubsetOf(qualities.preferred, setUHD8K)) {
                 result.class = qualityCssClassStrings[qualityValues.uhd8kbluray];
                 result.text = 'UHD-8K';
+            // Check if hevc
+            } else if (isSubsetOf(qualities.allowed, sethevc) && isSubsetOf(qualities.preferred, sethevc)) {
+                result.class = qualityCssClassStrings[qualityValues.hevc];
+                result.text = 'HEVC 720p';
+            // Check if full hevc
+            } else if (isSubsetOf(qualities.allowed, setfullhevc) && isSubsetOf(qualities.preferred, setfullhevc)) {
+                result.class = qualityCssClassStrings[qualityValues.fullhevc];
+                result.text = 'HEVC 1080p';
             }
 
             return result;
@@ -192,7 +208,7 @@ export default {
                 if (curQuality & quality) {
                     result.allowed.push(curQuality);
                 }
-                if ((curQuality << 16) & quality) {
+                if ((curQuality << 32) & quality) {
                     result.preferred.push(curQuality);
                 }
                 return result;
@@ -267,6 +283,14 @@ export default {
 
 .HD1080p {
     background-color: rgb(38, 114, 182);
+}
+
+.HEVC720p {
+    background-color: rgb(244,164,66);
+}
+
+.HEVC1080p {
+    background-color: rgb(244,164,66);
 }
 
 .UHD-4K {

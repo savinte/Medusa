@@ -15,7 +15,7 @@ class EpisodeTags(object):
     """Quality tags."""
 
     def __init__(self, name):
-        self.name = name
+        self.name = name.lower()
         self.rex = {
             'res': tags.resolution,
             'bluray': tags.bluray,
@@ -31,6 +31,7 @@ class EpisodeTags(object):
             'aussie': tags.aussie,
             'netflix': tags.netflix,
             'amazon': tags.amazon,
+            'hevc': tags.hevc,
         }
 
     def _get_match_obj(self, attr, regex=None, flags=0):
@@ -185,11 +186,14 @@ class EpisodeTags(object):
     @property
     def hevc(self):
         """
-        The hevc tag found in the name.
+        The hevc tag found in the name
 
         :returns: an empty string if not found
         """
-        return '' if not (self.avc[:-1] == '5') else self.avc
+        #return '' if not (self.avc[:-1] == '5') else self.avc
+        attr = 'hevc'
+        match = self._get_match_obj(attr)
+        return '' if not match else match.group()
 
     @property
     def avc(self):

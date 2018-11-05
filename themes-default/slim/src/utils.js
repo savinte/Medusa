@@ -11,7 +11,7 @@ const combineQualities = (allowedQualities, preferredQualities) => {
     const allowed = allowedQualities.reduce(reducer, 0);
     const preferred = preferredQualities.reduce(reducer, 0);
 
-    return (allowed | (preferred << 16)) >>> 0; // Unsigned int
+    return (allowed | (preferred << 32)) >>> 0; // Unsigned int
 };
 
 export {

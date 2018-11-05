@@ -16,6 +16,7 @@ sat = re.compile(r'(dsr|satrip)', re.IGNORECASE)
 amazon = re.compile(r'(amzn|amazon)(hd|uhd)?', re.IGNORECASE)
 itunes = re.compile(r'itunes(hd|uhd)?', re.IGNORECASE)
 netflix = re.compile(r'(nf|netflix)(hd|uhd)?', re.IGNORECASE)
+hevc = re.compile(r'(hevc|x265)', re.IGNORECASE)
 aussie = re.compile(r'\b(bf1)\b', re.IGNORECASE)  # aussie p2p release group
 
 # Codecs

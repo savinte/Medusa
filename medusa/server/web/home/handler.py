@@ -237,7 +237,7 @@ class Home(WebRoot):
         )
 
         show_stat = {}
-        max_download_count = 1000
+        max_download_count = 10000
         for cur_result in sql_result:
             show_stat[(cur_result['indexer'], cur_result['showid'])] = cur_result
             if cur_result['ep_total'] > max_download_count:

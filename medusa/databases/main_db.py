@@ -768,8 +768,8 @@ class ShiftQualities(AddSeparatedStatusQualityFields):
             # UNKNOWN quality value is 65536 (1 << 16) instead of 32768 (1 << 15) after the shift
             # Qualities in the tv_shows table have the combined values of allowed and preferred qualities.
             # Preferred quality couldn't contain UNKNOWN
-            if new_quality & 65536 > 0:  # If contains UNKNOWN allowed quality
-                new_quality -= 65536  # Remove it
+            if new_quality & 1048576 > 0:  # If contains UNKNOWN allowed quality
+                new_quality -= 1048576  # Remove it
                 new_quality |= common.Quality.UNKNOWN  # Then re-add it using the correct value
 
             self.connection.action(
@@ -790,7 +790,7 @@ class ShiftQualities(AddSeparatedStatusQualityFields):
             quality = result['quality']
             new_quality = quality << 1
 
-            if quality == 32768:  # Old UNKNOWN quality (1 << 15)
+            if quality == 1048576:  # Old UNKNOWN quality (1 << 15)
                 new_quality = common.Quality.UNKNOWN
             else:
                 new_quality = quality << 1
@@ -811,7 +811,7 @@ class ShiftQualities(AddSeparatedStatusQualityFields):
         for result in sql_results:
             quality = result['quality']
 
-            if quality == 32768:  # Old UNKNOWN quality (1 << 15)
+            if quality == 1048576:  # Old UNKNOWN quality (1 << 15)
                 new_quality = common.Quality.UNKNOWN
             else:
                 new_quality = quality << 1

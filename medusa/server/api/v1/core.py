@@ -542,6 +542,10 @@ quality_map = OrderedDict((
     ('uhd_8k_tv', Quality.UHD_8K_TV),
     ('uhd_8k_webdl', Quality.UHD_8K_WEBDL),
     ('uhd_8k_bluray', Quality.UHD_8K_BLURAY),
+    ('hevc', Quality.HEVC),
+    ('fullhevc', Quality.FULLHEVC),
+    ('hevcwebdl', Quality.HEVCWEBDL),
+    ('fullhevcwebdl', Quality.FULLHEVCWEBDL),
     ('unknown', Quality.UNKNOWN),
 ))
 
