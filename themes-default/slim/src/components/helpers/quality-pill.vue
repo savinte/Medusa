@@ -285,12 +285,16 @@ export default {
     background-color: rgb(38, 114, 182);
 }
 
+.HEVC {
+    background-color: rgb(244, 164, 66);
+}
+
 .HEVC720p {
-    background-color: rgb(244,164,66);
+    background-color: rgb(244, 164, 66);
 }
 
 .HEVC1080p {
-    background-color: rgb(244,164,66);
+    background-color: rgb(244, 119, 66);
 }
 
 .UHD-4K {

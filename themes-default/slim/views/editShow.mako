@@ -162,7 +162,8 @@ window.app = new Vue({
             const allowed = this.series.config.qualities.allowed.reduce(reducer, 0);
             const preferred = this.series.config.qualities.preferred.reduce(reducer, 0);
 
-            return (allowed | preferred << 32) >>> 0;  // Unsigned int
+            // can't use bitwise here because javascript converts it to a 32 bit int and we need 64bit
+            return (allowed + (preferred * Math.pow(2,32)));  // Unsigned int
         },
         saveButton() {
             return this.saving === false ? 'Save Changes' : 'Saving...';

@@ -206,14 +206,14 @@ const QualityChooserComponent = {
 
             // If preset is custom set to last preset
             if (parseInt(preset, 10) === 0 || !(this.qualityPresets.includes(preset))) preset = oldPreset;
-
+            
             // Convert values to unsigned int, and filter selected/prefrred qualities
             this.allowedQualities = Object.keys(this.qualityStrings)
                 .map(quality => parseInt(quality, 10))
                 .filter(quality => ( (preset & quality) >>> 0 ) > 0);
             this.preferredQualities = Object.keys(this.qualityStrings)
                 .map(quality => parseInt(quality, 10))
-                .filter(quality => ( (preset & (quality << 32)) >>> 0 ) > 0);
+                .filter(quality => ( ((preset - (preset >> 32)) / Math.pow(2, 32)) & quality) > 0);
         }
     },
     watch: {
